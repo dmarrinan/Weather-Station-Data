@@ -21,9 +21,6 @@ Base = automap_base()
 Base.prepare(engine, reflect=True)
 
 # Save reference to the table
-#################################################
-# check names!!!
-################################################
 Measurement = Base.classes.measurement
 Stations = Base.classes.station
 
@@ -55,6 +52,7 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/temp/start/end"
     )
 
 
@@ -76,9 +74,6 @@ def precipitation():
 @app.route("/api/v1.0/stations")
 def stations():
     # query to find the weather stations
-    #################################################
-    # check names!!!
-    ################################################
     results_stations = session.query(Stations.station).all()
     # Convert list of tuples into normal list
     station_list = list(np.ravel(results_stations))
@@ -100,6 +95,28 @@ def temperature():
 
     return jsonify(all_temperatures)
 
+@app.route("/api/v1.0/temp/<start>")
+@app.route("/api/v1.0/temp/<start>/<end>")
+def stats(start=None, end=None):
+    """Return TMIN, TAVG, TMAX."""
+    
+    if not end:
+        results_temperature = session.query(Measurement.date,Measurement.tobs)\
+                              .filter(Measurement.date>start).all()
+        temps = []
+        for result in results_temperature:
+            temps.append(result.tobs)
+        temps_json = [min(temps),np.mean(temps),max(temps)]
+        return jsonify(temps_json)
+    
+
+    results_temperature = session.query(Measurement.date,Measurement.tobs)\
+                         .filter(Measurement.date>start).filter(Measurement.date<end).all()
+    temps = []
+    for result in results_temperature:
+        temps.append(result.tobs)
+    temps_json = [min(temps),max(temps),np.mean(temps)]
+    return jsonify(temps_json)
 
 if __name__ == '__main__':
     app.run(debug=False)
