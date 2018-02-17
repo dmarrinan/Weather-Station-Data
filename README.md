@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Weather Stations
 
 ## Purpose
@@ -365,7 +364,3 @@ plt.show()
 
 
 ![png](output_18_0.png)
-
-=======
-# Weather-Station-Data
->>>>>>> c48a46150d236cea866d0e1fb6cc801f58f83284
